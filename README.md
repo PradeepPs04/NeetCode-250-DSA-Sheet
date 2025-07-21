@@ -1,0 +1,1 @@
+It's the most beginner friendly list, intended for people completely new to algorithms.
