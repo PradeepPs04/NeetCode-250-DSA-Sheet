@@ -11,3 +11,64 @@
     Output: false
 */
 
+// using min heap
+bool carPooling(vector<vector<int>> &trips, int capacity)
+{
+    // sort according to "from" and "to" locations
+    sort(trips.begin(), trips.end(), [](const auto &a, const auto &b)
+         { return (a[1] < b[1] || (a[1] == b[1] && a[2] < b[2])); });
+
+    // min heap {destination, passenger}
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+    int currPassengeres = 0; // current passengeres on car
+
+    for (int i = 0; i < trips.size(); i++)
+    {
+        // remove all passengers those destination is equal to before the  current trip
+        while (!pq.empty() && pq.top().first <= trips[i][1])
+        {
+            // decrease occupied seat
+            currPassengeres -= pq.top().second;
+            pq.pop();
+        }
+
+        // add trip to heap
+        pq.push({trips[i][2], trips[i][0]});
+
+        // increament occupied seat
+        currPassengeres += trips[i][0];
+
+        // check if currPassengers are more than capacity
+        if (currPassengeres > capacity)
+            return false;
+    }
+
+    return true;
+}
+
+// without using heap
+bool carPooling(vector<vector<int>> &trips, int capacity)
+{
+    vector<vector<int>> arr;
+    for (int i = 0; i < trips.size(); i++)
+    {
+        arr.push_back({trips[i][1], trips[i][0]});  // +x passengers added at source
+        arr.push_back({trips[i][2], -trips[i][0]}); // -x passengers removed at destination
+    }
+
+    // sort according to location
+    sort(arr.begin(), arr.end());
+
+    int currPassengers = 0;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        currPassengers += arr[i][1];
+
+        // check if current passengers are more than capacity
+        if (currPassengers > capacity)
+            return false;
+    }
+
+    return true;
+}
